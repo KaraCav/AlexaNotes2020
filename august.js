@@ -31,3 +31,33 @@ if (previousReminder) {
     Alexa.getLocale(requestEnvelope),
     message )
 
+// Example 3- Hitting an external API
+function fetchBirthdays(day, month, limit) { // limit is max # entries returned
+  const endpoint = 'https://query.wikidata.org/sparql'; // list of actors
+  const sparqlQuery = // the 'wd and wdt are search params for humans' 
+    `SELECT DISTINCT ?human ?humanLabel ?picture ?date_of_birth WHERE {
+     ?human wdt:P31 wd:Q5;  
+     wdt:18 ?picture.
+     FILTER((DATATYPE(?date_of_birth) = xsd:dateTime)
+     FILTER((MONTH(?date_of_birth)) = ${month})
+     SERVICE wikibase:label { bd:serviceParam wikibase: language "en". }
+     OPTIONAL { ?human wdt:P569 ?date_of_birth.}
+    } LIMIT ${limit}`; 
+  const url = endpoint + '?query' + encodeURIComponent(sparqlQuery);
+  console.log(url);
+
+  var config = {
+    timeout: 6500, // timeout call b4 Alexa's 8 sec one (or use axios.default)
+    headers: {'Accept': 'application/sparql-results+json'}
+  };
+
+  async function getJsonResponse(url, config) {
+    const res = await axios.get(url, config);
+    return res.data;
+  }
+
+  return getJsonResponse(url, config).then((result) => {
+    return result;
+  }).catch((error) => null);
+ } 
+}
