@@ -61,3 +61,19 @@ function fetchBirthdays(day, month, limit) { // limit is max # entries returned
   }).catch((error) => null);
  } 
 }
+
+// Example 4- Check if device can handle APL
+	if (util.supportsAPL(handlerInput)) {
+    const {Viewport} = handlerInput.requestEnvelope.context;
+    const resolution = Viewport.pixelWidth + "x" + Viewport.pixelHeight;
+    handlerInput.responseBuilder.addDirective({
+      type: 'Alexa.Presentation.APL.RenderDocument',
+      version: 1.1,
+      document: constants.APL.launchDoc, // the file we created in other tab
+      datasources: {
+        // add type, transformers, and properties like headerText, mainText, backgroundImage, etc.
+      }
+    })
+  }
+
+
